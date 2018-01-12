@@ -125,7 +125,7 @@ def do_backup():
 					nome = data_atual+"_"+equipamento.ip+"_"+equipamento.nome.upper()+".txt"
 					sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
 					sys('echo "$(tput setaf 2)  SUCESSO $(tput sgr0)"')
-					result = utils.getDataHoraAtual()+" OK -> %s"%equipamento.toString()
+					result = ("%s OK -> %s"%(utils.getDataHoraAtual(),equipamento.toString()))
 					chamadas.writeToLog(result,logpath)
 					cont_ok +=1
 				atual+= 1
