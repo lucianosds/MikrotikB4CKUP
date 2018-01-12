@@ -2,14 +2,16 @@
 #
 #
 #
- Mikrotik Systems backup is an simple code which runs some scripts to do backup rotines into Mikrotik equipaments.
+ ### Mikrotik Systems backup is an simple code which runs some scripts to do backup rotines into Mikrotik equipaments.
 
-  - Batch Backup Rotines    
+with this script you can do
 
-# New Features!
-
-  - Import a HTML file and watch it magically convert to Markdown
-  - Drag and drop images (requires your Dropbox account be linked)
+  - Batch Backup Rotines   
+  - Automated Backup Routines (with crontab)
+  - Get backup configuration by SSH or FTP
+#
+#
+#
 
 ## how to use it
 
