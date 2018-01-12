@@ -18,7 +18,7 @@ with this script you can do
 when you running project for first time 
 
     $ git clone https://github.com/M4T3U5/MikrotikB4CKUP
-    $ .MikrotikB4CKUP/get_dependences.sh
+    $ ./MikrotikB4CKUP/get_dependences.sh
     
 after that, you just can call
 
