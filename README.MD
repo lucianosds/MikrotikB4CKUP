@@ -16,8 +16,7 @@
 when you running project for first time 
 
     $ git clone https://github.com/M4T3U5/MikrotikB4CKUP
-    $ sudo chmod +x get_dependences.sh
-    $ ./get_dependences
+    $ .MikrotikB4CKUP/get_dependences.sh
     
 after that, you just can call
 
