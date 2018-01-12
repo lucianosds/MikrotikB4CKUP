@@ -46,8 +46,8 @@ def add():
 	#if arqui == "":
 	#	arqui = "backup.rsc"
 	
-	if nome == "":
-		nome = "RB_%s"%ip
+	#if nome == "":
+	#	nome = "RB_%s"%ip
 
 	banco.insert(Modelos.Login(nome, ip, user, senha, porta, "backup.rsc"))
 	
@@ -139,4 +139,17 @@ def do_backup():
 		print (" %s backups OK | %s backups ERRO\n"%(cont_ok,cont_erro))
 	
 if __name__=="__main__":
+
+
+
+
+
+
+
+
+
+
+
+
+
 	main()
