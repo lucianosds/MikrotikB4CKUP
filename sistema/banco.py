@@ -8,7 +8,8 @@ def insert(data):
 		db.write(data.toJSON()+"\n")
 		db.close()
 	except:
-		pass
+		raise
+
 	
 def getAll():
 	entradas = []
@@ -20,6 +21,6 @@ def getAll():
 			entradas.append(Modelos.Login.fromJSON(linha))
 		db.close()
 		return entradas
-	except(e):
-		print (e)
+	except:
+		raise
 		return entradas

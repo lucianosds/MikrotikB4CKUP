@@ -22,25 +22,32 @@ class SSH:
 			pass
 
 class Login():
-	def __init__(self,nome="",ip="",usuario="",senha="",porta=2227,arquivo="backup.rsc"):
+	def __init__(self,nome="",ip="",usuario="",senha="",porta=2227,arquivo="backup.rsc",protocolo = ""):
 		self.nome = nome
 		self.ip = ip
 		self.usuario = usuario
 		self.senha = senha
-		if porta == "":
-			self.porta = 2227
+		self.protocolo = protocolo
+
+		if protocolo == "SSH" and porta == "":
+			self.porta = 22
+		elif self.protocolo == "FTP" and porta == "":
+			self.porta = 21
 		else:
 			self.porta = porta
 		self.arquivo = arquivo
 		
+
 	def toJSON(self):
-		return ('{"nome":"%s","ip":"%s","usuario":"%s","senha":"%s","porta":"%s","arquivo":"%s"}'%(self.nome,self.ip,self.usuario,self.senha,self.porta,self.arquivo))
+		return ('{"nome":"%s","ip":"%s","usuario":"%s","senha":"%s","porta":"%s","arquivo":"%s","protocolo":"%s"}'%(self.nome,self.ip,self.usuario,self.senha,self.porta,self.arquivo,self.protocolo))
+	
 	def fromJSON(json):
 		d =  eval(json)
-		return Login(d["nome"], d["ip"], d["usuario"], d["senha"], int(d["porta"]), d["arquivo"])
-		
+		return Login(d["nome"], d["ip"], d["usuario"], d["senha"], int(d["porta"]), d["arquivo"],d["protocolo"])
+	
 	def toString(self):
-		return ('nome:%s|ip:%s|usuario:%s|senha:%s|porta:%s|arquivo_backup:%s' %(self.nome,self.ip,self.usuario,self.senha,self.porta,self.arquivo))
+		return ('nome:%s|ip:%s|usuario:%s|senha:%s|porta:%s|protocolo:%s|arquivo_backup:%s' %(self.nome,self.ip,self.usuario,self.senha,self.porta,self.protocolo,self.arquivo))
+	
 	def getFileName(self):
 		if self.arquivo.split("/").pop() != None:
 			return self.arquivo.split("/").pop()
