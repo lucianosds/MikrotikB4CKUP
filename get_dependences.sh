@@ -13,6 +13,7 @@ apt install python3-pip
 apt install pip3
 python3-pip install paramiko
 pip3 install paramiko
+alias mkbcp="python3 main.py"
 clear
 python3 main.py
 ##############

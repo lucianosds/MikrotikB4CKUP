@@ -69,9 +69,13 @@ def tratarNome(nome):
 	tratado = ""
 
 	for caracter in nome:
-		if caracter in caracteres_especiais:
-			tratado += "_"
-		else:
+		has_special = False
+		for car in caracteres_especiais:
+			if caracter == car:
+				tratado += "_"
+				has_special = True
+				break
+		if not has_special:
 			tratado += caracter
 	return tratado
 

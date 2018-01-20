@@ -88,7 +88,7 @@ def addHost():
 				break
 	while True:
 		
-		op = input("1 - FTP (via lftp)\n2 - SSH (via scp)\n --> ")
+		op = input("\nMetodo de backup:\n1 - FTP (via lftp)\n2 - SSH (via scp)\n --> ")
 
 		if op == "1":
 			protocolo = "FTP"
@@ -124,7 +124,7 @@ def addHost():
 
 
 
-	new_login = Modelos.Login(nome, ip, user, senha, porta, "backup.rsc",protocolo)
+	new_login = Modelos.Login(utils.tratarNome(nome), ip, user, senha, porta, "backup.rsc",protocolo)
 	
 	banco.insert(new_login)
 	
@@ -169,28 +169,28 @@ def do_backup(quiet=False):
 	atual = 1
 	cont_erro = 0
 	cont_ok = 0	
-
+	tempo_inicio = utils.getDataHoraAtual()
+	tempo_fim = ""
 
 	if len(equipamentos) == 0:
 		if not quiet:
-			sys('echo "$(tput setaf 1)  \n  NAO EXISTEM EQUIPAMENTOS CADASTRADOS $(tput sgr0)"')
+			sys('echo "$(tput setaf 1)  \n  NAO EXISTEM EQUIPAMENTOS CADASTRADOS $(tput sgr0)\n\n"')
 		chamadas.writeToLog("\n\n############################# ROTINA DE BACKUPS INICIADA #############################",logpath)
 		chamadas.writeToLog("\n############################# %s #############################\n"%tempo_inicio,logpath)
-		chamadas.writeToLog("\n 		ERRO: NAO EXISTEM EQUIPAMENTOS CADASTRADOS")	
+		chamadas.writeToLog("\n 		ERRO: NAO EXISTEM EQUIPAMENTOS CADASTRADOS",logpath)	
 	else:
 
 		if not quiet:
 			sys('echo "$(tput setaf 6)      INICIALIZANDO ROTINA DE BACKUPS $(tput sgr0)\n\n\n"')
 			sys("sleep 1")
-		tempo_inicio = utils.getDataHoraAtual()
-		tempo_fim = ""
+
 
 		chamadas.writeToLog("\n\n############################# ROTINA DE BACKUPS INICIADA #############################",logpath)
 		chamadas.writeToLog("\n############################# %s #############################\n"%tempo_inicio,logpath)
 		
 		for equipamento in equipamentos:
 			if not quiet:
-				sys('echo "$(tput setaf 3)\n verificando conexão com %s(%s)  \n$(tput sgr0)"'%(equipamento.nome, equipamento.ip))
+				sys('echo "$(tput setaf 3)\n verificando conexão com %s(%s)  $(tput sgr0)"'%(equipamento.nome, equipamento.ip))
 
 			if utils.hasPing(equipamento.ip):
 				if not quiet:
@@ -206,6 +206,7 @@ def do_backup(quiet=False):
 					
 					except:
 						raise
+						cont_erro+=1
 				
 				else:
 
@@ -265,7 +266,7 @@ def do_backup(quiet=False):
 						
 			else:
 				if not quiet:
-					sys('echo "$(tput setaf 1)  NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) $(tput sgr0)"')
+					sys('echo "$(tput setaf 1)\n  NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) $(tput sgr0)"')
 				result = ("%s |ERRO| -> SEM RESPOSTA DO HOST (ICMP DOWN) %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
 				chamadas.writeToLog(result,logpath)
 				cont_erro += 1
