@@ -48,6 +48,9 @@ class Login():
 	def toString(self):
 		return ('nome:%s|ip:%s|usuario:%s|senha:%s|porta:%s|protocolo:%s|arquivo_backup:%s' %(self.nome,self.ip,self.usuario,self.senha,self.porta,self.protocolo,self.arquivo))
 	
+	def toStringLog(self):
+		return ('nome:%s | ip: %s'%(self.nome,self.ip))
+
 	def getFileName(self):
 		if self.arquivo.split("/").pop() != None:
 			return self.arquivo.split("/").pop()

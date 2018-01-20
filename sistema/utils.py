@@ -49,14 +49,38 @@ def getDataHoraAtual():
 		string_segundo = "0"+str(segundo)
 	else:
 		string_segundo = str(segundo)
+	
+	return ("%s-%s-%s-%s"%(getDataAtual(),string_hora,string_minuto,string_segundo))
 
-		return ("%s-%s-%s-%s"%(getDataAtual(),string_hora,string_minuto,string_segundo))
+def Intervalo(inicio,fim):
+	dtini = inicio.split("-")
+	dtfim = fim.split("-")
+
 
 def hasPing(host):
 
-	if  platform.system().lower()=="windows":
-		ping_str = "ping -n 1 "
-	else:
-		ping_str = "ping -c 1 "
+	ping_str = "ping -c 1 > /dev/null"
 	resposta = os.system(ping_str + " " + host)
 	return resposta == 0
+
+def tratarNome(nome):
+	
+	caracteres_especiais = [" ","*","$"]
+	tratado = ""
+
+	for caracter in nome:
+		if caracter in caracteres_especiais:
+			tratado += "_"
+		else:
+			tratado += caracter
+	return tratado
+
+
+
+
+
+
+
+
+
+

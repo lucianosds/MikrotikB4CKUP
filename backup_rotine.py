@@ -1,2 +1,2 @@
 import main
-main.do_backup()
+main.do_backup(quiet=True)

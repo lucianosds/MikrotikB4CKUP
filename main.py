@@ -10,9 +10,9 @@ def main():
 	chamadas.load_logo()
 	
 	while True:
-		op = input(" 1 - add equipamento\n 2 - listar equipamentos\n 3 - realizar backup\n 4 - sair\n---> ")
+		op = input(" 1 - add equipamento\n 2 - listar equipamentos\n 3 - realizar backup\n 0 - sair\n---> ")
 		
-		if op == "4":
+		if op == "0":
 			break
 		elif op =="1":
 			add()
@@ -24,6 +24,30 @@ def main():
 			print("\n opcao invalida")
 			
 def add():
+	while True:
+		op = input("  1 - inserir host\n  2 - carregar de arquivo CSV\n  0 - voltar\n --> ")
+		if op == "0":
+			break
+		elif op == "2":
+			loadCSV()
+			break
+		elif op == "1":
+			addHost()
+			break
+
+def loadCSV():
+	while True:
+		tgt = input("   insira o local do arquivo CSV. 0 para cancelar\n --> ")
+		if tgt == "0":
+			break
+		else:
+			if path.exists(tgt):
+				banco.loadFromCSVFile(tgt)
+				break
+			else:
+				sys('echo "$(tput setaf 1)\n  O ARQUIVO NAO EXISTE \n$(tput sgr0)"')
+
+def addHost():		
 	print()
 
 	nome = ""
@@ -31,8 +55,7 @@ def add():
 	user = ""
 	senha = ""
 	protocolo = ""
-	porta = 0
-	
+	porta = 0	
 
 	while True:
 		nome = input("nome do equipamento -> ")
@@ -120,7 +143,8 @@ def listar():
 			contador += 1
 	print()
 
-def do_backup():
+def do_backup(quiet=False):
+
 	data_atual = utils.getDataAtual()
 
 	logfile = data_atual+".log"
@@ -148,54 +172,113 @@ def do_backup():
 
 
 	if len(equipamentos) == 0:
-
-		print("\n NAO EXISTEM EQUIPAMENTOS CADASTRADOS\n")
-	
+		if not quiet:
+			sys('echo "$(tput setaf 1)  \n  NAO EXISTEM EQUIPAMENTOS CADASTRADOS $(tput sgr0)"')
+		chamadas.writeToLog("\n\n############################# ROTINA DE BACKUPS INICIADA #############################",logpath)
+		chamadas.writeToLog("\n############################# %s #############################\n"%tempo_inicio,logpath)
+		chamadas.writeToLog("\n 		ERRO: NAO EXISTEM EQUIPAMENTOS CADASTRADOS")	
 	else:
+
+		if not quiet:
+			sys('echo "$(tput setaf 6)      INICIALIZANDO ROTINA DE BACKUPS $(tput sgr0)\n\n\n"')
+			sys("sleep 1")
+		tempo_inicio = utils.getDataHoraAtual()
+		tempo_fim = ""
+
+		chamadas.writeToLog("\n\n############################# ROTINA DE BACKUPS INICIADA #############################",logpath)
+		chamadas.writeToLog("\n############################# %s #############################\n"%tempo_inicio,logpath)
 		
 		for equipamento in equipamentos:
-
-			print ("\n verificando conexão com %s(%s)\n "%(equipamento.nome, equipamento.ip))
+			if not quiet:
+				sys('echo "$(tput setaf 3)\n verificando conexão com %s(%s)  \n$(tput sgr0)"'%(equipamento.nome, equipamento.ip))
 
 			if utils.hasPing(equipamento.ip):
-
-				print("\n realizando backup dos equipamentos %s/%s (%s-OK | %s-ERRO) \n"%(atual,total,cont_ok,cont_erro))
+				if not quiet:
+					sys('echo "$(tput setaf 2) OK $(tput sgr0)"')
+					print("\n  TENTANDO BACKUP DO EQUIPAMENTO %s/%s (%s-OK | %s-ERRO) "%(atual,total,cont_ok,cont_erro))
 				
-				if equipamento.protocolo == "FTP":
-					chamadas.getFTPFile(equipamento)
+				EXPECTED_ERROR = "None"
 
+				if equipamento.protocolo == "FTP":
+					try:
+
+						chamadas.getFTPFile(equipamento)
+					
+					except:
+						raise
+				
 				else:
 
 					try:
+
 						chamadas.createScriptBackup(equipamento)
 						chamadas.getSCPFile(equipamento)
-					except paramiko.ssh_exception.AuthenticationException:
-						sys('echo "$(tput setaf 1)  \n  ERRO DE AUTENTICACAO $(tput sgr0)"')
 					
-				if not path.exists(equipamento.getFileName()):
+					except paramiko.ssh_exception.AuthenticationException:
+						if not quiet:
+							sys('echo "$(tput setaf 1)  \n  ERRO DE AUTENTICACAO $(tput sgr0)"')
+						EXPECTED_ERROR = "ERROR DE AUTENTICACAO"
 
-					sys('echo "$(tput setaf 1)  \n  ERRO $(tput sgr0)"')
-					result = "ERRO -> %s"%equipamento.toString()
-					chamadas.writeToLog(result,logpath)
-					cont_erro += 1
+					except paramiko.ssh_exception.NoValidConnectionsError:
+						if not quiet:
+							sys('echo "$(tput setaf 1)  \n  CONEXAO RECUSADA $(tput sgr0)"')
+						EXPECTED_ERROR = "CONEXAO RECUSADA"
 
-				else:
-					arquivo = (equipamento.getFileName())
-					nome = data_atual+"_"+equipamento.ip+"_"+equipamento.nome.upper()+".txt"
-					sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
-					sys('echo "$(tput setaf 2)\n  SUCESSO $(tput sgr0)"')
-					result = ("%s OK -> %s"%(utils.getDataHoraAtual(),equipamento.toString()))
-					chamadas.writeToLog(result,logpath)
-					cont_ok +=1
+					except TimeoutError:
+						if not quiet:
+							sys('echo "$:(tput setaf 1)  \n  TEMPO DE CONEXAO ESGOTADO $(tput sgr0)"')
+						EXPECTED_ERROR = "TEMPO DE CONEXAO ESGOTADO"
+
+					except paramiko.ssh_exception.SSHException:
+						if not quiet:
+							sys('echo "$:(tput setaf 1)  \n  CONEXAO RECUSADA PARA ESTE HOST $(tput sgr0)"')
+						EXPECTED_ERROR = "CONEXAO RECUSADA PARA ESTE HOST"
+
+					except EOFError:
+						if not quiet:
+							sys('echo "$:(tput setaf 1)  \n  ERRO INTERNO $(tput sgr0)"')
+						EXPECTED_ERROR = "ERRO DURANTE A MANIPULACAO DA CONEXAO"
+
+
+					if EXPECTED_ERROR == "None":
+
+						if not path.exists(equipamento.getFileName()):
+							if not quiet:
+								sys('echo "$(tput setaf 1)  \n  ERRO $(tput sgr0)"')
+							result = ("%s |ERRO| -> %s"%(utils.getDataHoraAtual(), equipamento.toStringLog()))
+							chamadas.writeToLog(result,logpath)
+							cont_erro += 1
+
+						else:
+							arquivo = (equipamento.getFileName())
+							nome = data_atual+"_"+equipamento.ip+"_"+equipamento.nome.upper()+".txt"
+							sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
+							if not quiet:
+								sys('echo "$(tput setaf 2)\n  SUCESSO $(tput sgr0)"')
+							result = ("%s |OK  | %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
+							chamadas.writeToLog(result,logpath)
+							cont_ok +=1
+					else:
+						result = ("%s |ERRO| -> %s %s"%(utils.getDataHoraAtual(),EXPECTED_ERROR, equipamento.toStringLog()))
+						chamadas.writeToLog(result,logpath)
+						cont_erro += 1
+						
 			else:
-				sys('echo "$(tput setaf 1)  NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) $(tput sgr0)"')
-				result = "ERRO -> NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) %s"%equipamento.toString()
+				if not quiet:
+					sys('echo "$(tput setaf 1)  NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) $(tput sgr0)"')
+				result = ("%s |ERRO| -> SEM RESPOSTA DO HOST (ICMP DOWN) %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
 				chamadas.writeToLog(result,logpath)
 				cont_erro += 1
 			atual += 1
+		tempo_fim = utils.getDataHoraAtual()
 
-		print ("\n Rotina de Backups Concluida \n")
-		print (" %s backups OK | %s backups ERRO\n"%(cont_ok,cont_erro))
+		chamadas.writeToLog("############################# ROTINA DE BACKUPS CONCLUIDA #############################\n",logpath)
+		chamadas.writeToLog("############################# %s #############################\n"%tempo_fim,logpath)
+		chamadas.writeToLog("######################### %s backups OK | %s backups ERRO #############################\n"%(cont_ok,cont_erro),logpath)
+			
+		if not quiet:
+			print ("\n Rotina de Backups Concluida \n")
+			print ("%s backups OK | %s backups ERRO \n"%(cont_ok,cont_erro))
 	
 if __name__=="__main__":
 

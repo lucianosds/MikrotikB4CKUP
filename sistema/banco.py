@@ -1,6 +1,7 @@
 banco = "sistema/database.json"
 
 from modelos import Modelos
+from sistema import utils
 
 def insert(data):
 	try:
@@ -9,7 +10,6 @@ def insert(data):
 		db.close()
 	except:
 		raise
-
 	
 def getAll():
 	entradas = []
@@ -22,5 +22,15 @@ def getAll():
 		db.close()
 		return entradas
 	except:
-		raise
 		return entradas
+
+def loadFromCSVFile(tgt):
+	opened_file = open(tgt,"r")
+	lines = opened_file.readlines()
+
+	for l in lines:
+		line = l.split(",")
+		print(line)
+
+		modelo = Modelos.Login(utils.tratarNome(line[0]),line[1],line[2],line[3],line[4],line[5],line[6].strip("\n"))
+		insert(modelo)
