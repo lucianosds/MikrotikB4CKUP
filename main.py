@@ -42,8 +42,11 @@ def loadCSV():
 			break
 		else:
 			if path.exists(tgt):
-				banco.loadFromCSVFile(tgt)
-				break
+				try:
+					banco.loadFromCSVFile(tgt)
+				except IndexError:
+					sys('echo "$(tput setaf 1)\n  ERRO DURANTE A ANALISE DO ARQUIVO: FORMATO INVALIDO \n$(tput sgr0)"')
+				break	
 			else:
 				sys('echo "$(tput setaf 1)\n  O ARQUIVO NAO EXISTE \n$(tput sgr0)"')
 
@@ -246,7 +249,7 @@ def do_backup(quiet=False):
 						if not path.exists(equipamento.getFileName()):
 							if not quiet:
 								sys('echo "$(tput setaf 1)  \n  ERRO $(tput sgr0)"')
-							result = ("%s |ERRO| -> %s"%(utils.getDataHoraAtual(), equipamento.toStringLog()))
+							result = ("%s |ERRO| -> POSSIVEL ERRO DE VERSAO SSH %s"%(utils.getDataHoraAtual(), equipamento.toStringLog()))
 							chamadas.writeToLog(result,logpath)
 							cont_erro += 1
 
@@ -256,7 +259,7 @@ def do_backup(quiet=False):
 							sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
 							if not quiet:
 								sys('echo "$(tput setaf 2)\n  SUCESSO $(tput sgr0)"')
-							result = ("%s |OK  | %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
+							result = ("%s |OK  | -> %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
 							chamadas.writeToLog(result,logpath)
 							cont_ok +=1
 					else:

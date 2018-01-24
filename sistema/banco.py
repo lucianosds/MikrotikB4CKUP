@@ -27,10 +27,12 @@ def getAll():
 def loadFromCSVFile(tgt):
 	opened_file = open(tgt,"r")
 	lines = opened_file.readlines()
-
+	TOTAL = len(lines)
+	ATUAL = 1
 	for l in lines:
 		line = l.split(",")
-		print(line)
-
 		modelo = Modelos.Login(utils.tratarNome(line[0]),line[1],line[2],line[3],line[4],line[5],line[6].strip("\n"))
+		print("inserindo entrada: %s/%s"%(ATUAL,TOTAL))
 		insert(modelo)
+		ATUAL += 1
+	print("\n\n    FEITO\n\n")
