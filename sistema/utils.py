@@ -51,6 +51,11 @@ def getDataHoraAtual():
 		string_segundo = str(segundo)
 	
 	return ("%s-%s-%s-%s"%(getDataAtual(),string_hora,string_minuto,string_segundo))
+	
+def getDataHoraAtualFormated():
+	values = getDataHoraAtual().split("-")
+	return ("%s-%s-%s %s:%s:%s"%(values[0],values[1],values[2],values[3],values[4],values[5]))
+
 
 def Intervalo(inicio,fim):
 	dtini = inicio.split("-")

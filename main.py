@@ -8,7 +8,7 @@ from sistema import banco, chamadas, utils
 def main():
 	
 	chamadas.load_logo()
-	
+	print(utils.getDataHoraAtualFormated())
 	while True:
 		op = input(" 1 - add equipamento\n 2 - listar equipamentos\n 3 - realizar backup\n 0 - sair\n---> ")
 		
@@ -172,7 +172,7 @@ def do_backup(quiet=False):
 	atual = 1
 	cont_erro = 0
 	cont_ok = 0	
-	tempo_inicio = utils.getDataHoraAtual()
+	tempo_inicio = utils.getDataHoraAtualFormated()
 	tempo_fim = ""
 
 	if len(equipamentos) == 0:
@@ -210,6 +210,30 @@ def do_backup(quiet=False):
 					except:
 						raise
 						cont_erro+=1
+
+					if EXPECTED_ERROR == "None":
+
+						if not path.exists(equipamento.getFileName()):
+							if not quiet:
+								sys('echo "$(tput setaf 1)  \n  ERRO $(tput sgr0)"')
+							result = ("%s |ERRO| -> ERRO DE FTP %s"%(utils.getDataHoraAtualFormated(), equipamento.toStringLog()))
+							chamadas.writeToLog(result,logpath)
+							cont_erro += 1
+
+						else:
+							arquivo = (equipamento.getFileName())
+							nome = data_atual+"_"+equipamento.ip+"_"+equipamento.nome.upper()+".txt"
+							sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
+							if not quiet:
+								sys('echo "$(tput setaf 2)\n  SUCESSO $(tput sgr0)"')
+							result = ("%s |OK  | -> %s"%(utils.getDataHoraAtualFormated(),equipamento.toStringLog()))
+							chamadas.writeToLog(result,logpath)
+							cont_ok +=1
+					else:
+						result = ("%s |ERRO| -> %s %s"%(utils.getDataHoraAtualFormated(),EXPECTED_ERROR, equipamento.toStringLog()))
+						chamadas.writeToLog(result,logpath)
+						cont_erro += 1
+					
 				
 				else:
 
@@ -249,7 +273,7 @@ def do_backup(quiet=False):
 						if not path.exists(equipamento.getFileName()):
 							if not quiet:
 								sys('echo "$(tput setaf 1)  \n  ERRO $(tput sgr0)"')
-							result = ("%s |ERRO| -> POSSIVEL ERRO DE VERSAO SSH %s"%(utils.getDataHoraAtual(), equipamento.toStringLog()))
+							result = ("%s |ERRO| -> POSSIVEL ERRO DE VERSAO SSH %s"%(utils.getDataHoraAtualFormated(), equipamento.toStringLog()))
 							chamadas.writeToLog(result,logpath)
 							cont_erro += 1
 
@@ -259,24 +283,24 @@ def do_backup(quiet=False):
 							sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
 							if not quiet:
 								sys('echo "$(tput setaf 2)\n  SUCESSO $(tput sgr0)"')
-							result = ("%s |OK  | -> %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
+							result = ("%s |OK  | -> %s"%(utils.getDataHoraAtualFormated(),equipamento.toStringLog()))
 							chamadas.writeToLog(result,logpath)
 							cont_ok +=1
 					else:
-						result = ("%s |ERRO| -> %s %s"%(utils.getDataHoraAtual(),EXPECTED_ERROR, equipamento.toStringLog()))
+						result = ("%s |ERRO| -> %s %s"%(utils.getDataHoraAtualFormated(),EXPECTED_ERROR, equipamento.toStringLog()))
 						chamadas.writeToLog(result,logpath)
 						cont_erro += 1
 						
 			else:
 				if not quiet:
 					sys('echo "$(tput setaf 1)\n  NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) $(tput sgr0)"')
-				result = ("%s |ERRO| -> SEM RESPOSTA DO HOST (ICMP DOWN) %s"%(utils.getDataHoraAtual(),equipamento.toStringLog()))
+				result = ("%s |ERRO| -> SEM RESPOSTA DO HOST (ICMP DOWN) %s"%(utils.getDataHoraAtualFormated(),equipamento.toStringLog()))
 				chamadas.writeToLog(result,logpath)
 				cont_erro += 1
 			atual += 1
-		tempo_fim = utils.getDataHoraAtual()
+		tempo_fim = utils.getDataHoraAtualFormated()
 
-		chamadas.writeToLog("############################# ROTINA DE BACKUPS CONCLUIDA #############################\n",logpath)
+		chamadas.writeToLog("\n############################# ROTINA DE BACKUPS CONCLUIDA #############################\n",logpath)
 		chamadas.writeToLog("############################# %s #############################\n"%tempo_fim,logpath)
 		chamadas.writeToLog("######################### %s backups OK | %s backups ERRO #############################\n"%(cont_ok,cont_erro),logpath)
 			

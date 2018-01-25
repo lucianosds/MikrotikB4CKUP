@@ -1,7 +1,6 @@
 from modelos import Modelos
 from os import system as sys
 
-
 def getFTPFile(login):
 
 	chamada = ('lftp -p %s -u %s,%s -e "get %s;quit" %s'%(login.porta,login.usuario,login.senha,login.arquivo,login.ip))
