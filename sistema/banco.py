@@ -36,3 +36,7 @@ def loadFromCSVFile(tgt):
 		insert(modelo)
 		ATUAL += 1
 	print("\n\n    FEITO\n\n")
+
+def addHostKey(host):
+	hkstring = ("Host %s\n  HostName %s\n  HostKeyAlgorithms=+ssh-dss"%(host.nome, host.ip ))
+	print (hkstring)

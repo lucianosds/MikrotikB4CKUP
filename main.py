@@ -1,4 +1,5 @@
 #coding:utf-8
+
 import paramiko
 from os import path as path
 from os import system as sys
@@ -8,8 +9,9 @@ from sistema import banco, chamadas, utils
 def main():
 	
 	chamadas.load_logo()
-	print(utils.getDataHoraAtualFormated())
+
 	while True:
+		
 		op = input(" 1 - add equipamento\n 2 - listar equipamentos\n 3 - realizar backup\n 0 - sair\n---> ")
 		
 		if op == "0":
@@ -153,6 +155,11 @@ def do_backup(quiet=False):
 	logfile = data_atual+".log"
 	logpath = ("backups/%s/%s"%(data_atual,logfile))
 
+	if ("cat ~/.ssh/known_hosts" != 0):
+		sys("touch ~/.ssh/known_hosts")
+	if ("cat ~/.ssh/config" != 0):
+		sys("touch ~/.ssh/config")
+
 	if not path.exists("backups"):
 		sys("mkdir backups")
 	
@@ -192,6 +199,9 @@ def do_backup(quiet=False):
 		chamadas.writeToLog("\n############################# %s #############################\n"%tempo_inicio,logpath)
 		
 		for equipamento in equipamentos:
+
+			utils.addHostKey(equipamento)
+
 			if not quiet:
 				sys('echo "$(tput setaf 3)\n verificando conexão com %s(%s)  $(tput sgr0)"'%(equipamento.nome, equipamento.ip))
 

@@ -1,3 +1,4 @@
+
 import subprocess
 import os, platform
 import time
@@ -84,12 +85,6 @@ def tratarNome(nome):
 			tratado += caracter
 	return tratado
 
-
-
-
-
-
-
-
-
-
+def addHostKey(host):
+	hkstring = ("Host %s\n  HostKeyAlgorithms=+ssh-dss\n  KexAlgorithms diffie-hellman-group1-sha1\n"%(host.ip))
+	os.system("echo '%s' >> ~/.ssh/config" %hkstring)
