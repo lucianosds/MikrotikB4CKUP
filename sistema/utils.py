@@ -3,6 +3,7 @@ import subprocess
 import os, platform
 import time
 
+## para configuracoes de zona de tempo, aqui esta sendo usado por default GMT-3
 fuso_horario = -3
 
 def getDataAtual():
@@ -36,6 +37,8 @@ def getDataHoraAtual():
 	string_minuto = ""
 	string_segundo = ""
 
+	if hora < 0:
+		hora += 24
 	if hora < 10:
 		string_hora = "0"+str(hora)
 	else:
@@ -57,11 +60,9 @@ def getDataHoraAtualFormated():
 	values = getDataHoraAtual().split("-")
 	return ("%s-%s-%s %s:%s:%s"%(values[0],values[1],values[2],values[3],values[4],values[5]))
 
-
 def Intervalo(inicio,fim):
 	dtini = inicio.split("-")
 	dtfim = fim.split("-")
-
 
 def hasPing(host):
 
@@ -88,3 +89,29 @@ def tratarNome(nome):
 def addHostKey(host):
 	hkstring = ("Host %s\n  HostKeyAlgorithms=+ssh-dss\n  KexAlgorithms diffie-hellman-group1-sha1\n"%(host.ip))
 	os.system("echo '%s' >> ~/.ssh/config" %hkstring)
+
+def scheduler():
+	print("\n\n    ATENCAO, ESTA FUNCIONALIDADE AINDA NAO FOI IMPEMENTADA,\n   FAVOR CONFIGURAR ROTINAS MANUALMENTE VIA CRONTAB\n   COM O SEGUINTE COMANDO: python3 backup_rotine.py")
+	while True:
+		op = input(" 1 - diario\n 2 - semanal\n 0 - voltar\n ---> ")
+		if op == "0":
+			break
+		elif op == "1":
+			while True:
+				try:
+					print("a data e hora atual neste sistema é: %s"%getDataHoraAtualFormated())
+					hora = input("  insira a hora do backup: (00 - 23 h) -> ")
+					hora = int(hora)
+					if hora < 0 or hora > 23:
+						print("  POR FAVOR, INSIRA UMA HORA VALIDA ")
+					else:
+						## TODO IMPLEMENTS
+				except:
+					print("  POR FAVOR, APENAS NUMEROS ")
+					pass
+		elif op == "2":
+			pass
+		else:
+			print(" OPCAO INVALIDA ")
+
+

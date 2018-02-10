@@ -1,20 +1,32 @@
 ##############
 clear
 
-echo " \n ATUALIZANDO LISTA DE REPOSITORIOS \n"
-apt update
-
-echo "\n INSTALANDO DEPENDENCIAS 1/6 \n"
-apt install openssh
-echo "\n INSTALANDO DEPENDENCIAS 2/6 \n"
-apt install lftp
-echo "\n INSTALANDO DEPENDENCIAS 3/6 \n"
-apt install sshpass
-echo "\n INSTALANDO DEPENDENCIAS 4/6 \n"
-apt install python3
-echo "\n INSTALANDO DEPENDENCIAS 5/6 \n"
-apt install python3-pip
-echo "\n INSTALANDO DEPENDENCIAS 6/6 \n"
+echo "  ATUALIZANDO LISTA DE REPOSITORIOS "
+echo 
+sudo apt update
+echo
+echo " INSTALANDO DEPENDENCIAS 1/6 "
+echo
+sudo apt install openssh
+echo
+echo " INSTALANDO DEPENDENCIAS 2/6 "
+echo
+sudo apt install lftp
+echo
+echo " INSTALANDO DEPENDENCIAS 3/6 "
+echo
+sudo apt install sshpass
+echo
+echo " INSTALANDO DEPENDENCIAS 4/6 "
+echo
+sudo apt install python3
+echo
+echo " INSTALANDO DEPENDENCIAS 5/6 "
+echo
+sudo apt install python3-pip
+echo
+echo " INSTALANDO DEPENDENCIAS 6/6 "
+echo
 pip3 install paramiko
 
 clear

@@ -22,8 +22,11 @@ def main():
 			listar()
 		elif op == "3":
 			do_backup()
+		elif op == "4":
+			utils.scheduler()
 		else:
 			print("\n opcao invalida")
+		print()
 			
 def add():
 	while True:
@@ -53,8 +56,6 @@ def loadCSV():
 				sys('echo "$(tput setaf 1)\n  O ARQUIVO NAO EXISTE \n$(tput sgr0)"')
 
 def addHost():		
-	print()
-
 	nome = ""
 	ip = ""
 	user = ""
@@ -63,7 +64,7 @@ def addHost():
 	porta = 0	
 
 	while True:
-		nome = input("nome do equipamento -> ")
+		nome = input("\nnome do equipamento -> ")
 		if nome != "":
 			break
 		else:
@@ -155,22 +156,20 @@ def do_backup(quiet=False):
 	logfile = data_atual+".log"
 	logpath = ("backups/%s/%s"%(data_atual,logfile))
 
+		## aqui e verifica a configuracao do SSH
 	if ("cat ~/.ssh/known_hosts" != 0):
 		sys("touch ~/.ssh/known_hosts")
 	if ("cat ~/.ssh/config" != 0):
 		sys("touch ~/.ssh/config")
 
+		## aqui e verificada a existencia e criacao dos arquivos log
 	if not path.exists("backups"):
 		sys("mkdir backups")
 	
 	if not path.exists("backups/%s"%data_atual):
 		sys("mkdir backups/%s"%data_atual)
 	
-	if path.exists("backups/%s"%logfile):
-		sys("rm -R backups/%s/*.log"%(data_atual))
-		print(("rm -R backups/%s/%s"%(data_atual,logfile)))
-	
-	else:
+	if not path.exists("backups/%s"%logfile):
 		sys("touch backups/%s/%s"%(data_atual,logfile))
 	
 
@@ -283,7 +282,7 @@ def do_backup(quiet=False):
 						if not path.exists(equipamento.getFileName()):
 							if not quiet:
 								sys('echo "$(tput setaf 1)  \n  ERRO $(tput sgr0)"')
-							result = ("%s |ERRO| -> POSSIVEL ERRO DE VERSAO SSH %s"%(utils.getDataHoraAtualFormated(), equipamento.toStringLog()))
+							result = ("%s |ERRO| -> ERRO DURANTE O BACKUP DO EQUIPAMENTO %s"%(utils.getDataHoraAtualFormated(), equipamento.toStringLog()))
 							chamadas.writeToLog(result,logpath)
 							cont_erro += 1
 
@@ -317,7 +316,9 @@ def do_backup(quiet=False):
 		if not quiet:
 			print ("\n Rotina de Backups Concluida \n")
 			print ("%s backups OK | %s backups ERRO \n"%(cont_ok,cont_erro))
-	
+
+
+
 if __name__=="__main__":
 
 	main()
