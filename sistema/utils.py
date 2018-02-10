@@ -106,6 +106,7 @@ def scheduler():
 						print("  POR FAVOR, INSIRA UMA HORA VALIDA ")
 					else:
 						## TODO IMPLEMENTS
+						pass
 				except:
 					print("  POR FAVOR, APENAS NUMEROS ")
 					pass
