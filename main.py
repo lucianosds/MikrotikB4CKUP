@@ -5,7 +5,7 @@ from os import path as path
 from os import system as sys
 from modelos import Modelos
 from sistema import banco, chamadas, utils
-	
+
 def main():
 	
 	chamadas.load_logo()
@@ -105,16 +105,6 @@ def addHost():
 		else:
 			sys('echo "$(tput setaf 1)\n  OPCAO INVALIDA \n$(tput sgr0)"')
 
-
-	## aqui foi comentado, pois a utilização apenas por Mikrotiks não exige tal parametro
-
-	#arqui = input("backup no equipamento (backup.rsc default) -> ")
-	#if arqui == "":
-	#	arqui = "backup.rsc"
-	
-	#if nome == "":
-	#	nome = "RB_%s"%ip
-
 	while True:
 		default_port_number = "21"
 		if protocolo == "SSH":
@@ -198,17 +188,23 @@ def do_backup(quiet=False):
 		chamadas.writeToLog("\n############################# %s #############################\n"%tempo_inicio,logpath)
 		
 		for equipamento in equipamentos:
-
-			utils.addHostKey(equipamento)
-
+			sys("sleep 2")
+			has_added_an_new_entry = chamadas.addHostKey(equipamento)
 			if not quiet:
+				print("#"*100)
+				print("\n  TENTANDO BACKUP DO EQUIPAMENTO %s/%s (%s-OK | %s-ERRO) "%(atual,total,cont_ok,cont_erro))
+				sys('echo "$(tput setaf 4)\n  VERIFICANDO ENTRADAS DE CHAVE SSH... $(tput sgr0)"')
+				if not has_added_an_new_entry:
+					sys('echo "$(tput setaf 2)  OK... \n$(tput sgr0)"')	
+				else:
+					sys('echo "$(tput setaf 3)  NAO ENCONTRADA, ADICIONANDO... $(tput sgr0)"')
+					sys('echo "$(tput setaf 2)  CHAVE ADICIONADA... \n$(tput sgr0)"')
 				sys('echo "$(tput setaf 3)\n verificando conexão com %s(%s)  $(tput sgr0)"'%(equipamento.nome, equipamento.ip))
-
-			if utils.hasPing(equipamento.ip):
+			if chamadas.hasPing(equipamento.ip):
 				if not quiet:
-					sys('echo "$(tput setaf 2) OK $(tput sgr0)"')
-					print("\n  TENTANDO BACKUP DO EQUIPAMENTO %s/%s (%s-OK | %s-ERRO) "%(atual,total,cont_ok,cont_erro))
-				
+					sys('echo "$(tput setaf 2) resposta de Ping OK $(tput sgr0)"')
+					sys('echo "$(tput setaf 2)  tentando se conectar ao equipamento... $(tput sgr0)"')
+					
 				EXPECTED_ERROR = "None"
 
 				if equipamento.protocolo == "FTP":
@@ -247,35 +243,36 @@ def do_backup(quiet=False):
 				else:
 
 					try:
-
+						
 						chamadas.createScriptBackup(equipamento)
 						chamadas.getSCPFile(equipamento)
 					
 					except paramiko.ssh_exception.AuthenticationException:
 						if not quiet:
-							sys('echo "$(tput setaf 1)  \n  ERRO DE AUTENTICACAO $(tput sgr0)"')
+							sys('echo "$(tput setaf 1)  \n  ERRO DE AUTENTICACAO (Usuario e/ou senha corretos? ) $(tput sgr0)"')
 						EXPECTED_ERROR = "ERROR DE AUTENTICACAO"
 
 					except paramiko.ssh_exception.NoValidConnectionsError:
 						if not quiet:
-							sys('echo "$(tput setaf 1)  \n  CONEXAO RECUSADA $(tput sgr0)"')
+							sys('echo "$(tput setaf 1)  \n  CONEXAO RECUSADA (o ssh esta em execucao e na porta correta? ) $(tput sgr0)"')
 						EXPECTED_ERROR = "CONEXAO RECUSADA"
 
 					except TimeoutError:
 						if not quiet:
-							sys('echo "$:(tput setaf 1)  \n  TEMPO DE CONEXAO ESGOTADO $(tput sgr0)"')
+							sys('echo "$:(tput setaf 1)  \n  TEMPO DE CONEXAO ESGOTADO (o equipamento esta online e/ou possui regra de firewall para ICMP? ) $(tput sgr0)"')
 						EXPECTED_ERROR = "TEMPO DE CONEXAO ESGOTADO"
 
 					except paramiko.ssh_exception.SSHException:
 						if not quiet:
-							sys('echo "$:(tput setaf 1)  \n  CONEXAO RECUSADA PARA ESTE HOST $(tput sgr0)"')
+							sys('echo "$:(tput setaf 1)  \n  CONEXAO RECUSADA PARA ESTE HOST (o equipamento esta com regra de firewall ativa? )$(tput sgr0)"')
 						EXPECTED_ERROR = "CONEXAO RECUSADA PARA ESTE HOST"
 
 					except EOFError:
 						if not quiet:
-							sys('echo "$:(tput setaf 1)  \n  ERRO INTERNO $(tput sgr0)"')
+							sys('echo "$:(tput setaf 1)  \n  ERRO DURANTE O PROCESSAMENTO DA CONEXAO $(tput sgr0)"')
 						EXPECTED_ERROR = "ERRO DURANTE A MANIPULACAO DA CONEXAO"
-
+					except:
+						pass
 
 					if EXPECTED_ERROR == "None":
 
@@ -291,7 +288,7 @@ def do_backup(quiet=False):
 							nome = data_atual+"_"+equipamento.ip+"_"+equipamento.nome.upper()+".txt"
 							sys("mv %s backups/%s/%s"%(arquivo,data_atual,nome))
 							if not quiet:
-								sys('echo "$(tput setaf 2)\n  SUCESSO $(tput sgr0)"')
+								sys('echo "$(tput setaf 2)\n  BACKUP REALIZADO COM SUCESSO $(tput sgr0)"')
 							result = ("%s |OK  | -> %s"%(utils.getDataHoraAtualFormated(),equipamento.toStringLog()))
 							chamadas.writeToLog(result,logpath)
 							cont_ok +=1
@@ -302,7 +299,7 @@ def do_backup(quiet=False):
 						
 			else:
 				if not quiet:
-					sys('echo "$(tput setaf 1)\n  NÃO FOI POSSIVEL SE CONECTAR (ICMP DOWN) $(tput sgr0)"')
+					sys('echo "$(tput setaf 1)\n  NÃO FOI POSSIVEL SE CONECTAR \n(o endereco esta correto, equipamento esta online e/ou possui regras de firewall? ) $(tput sgr0)"')
 				result = ("%s |ERRO| -> SEM RESPOSTA DO HOST (ICMP DOWN) %s"%(utils.getDataHoraAtualFormated(),equipamento.toStringLog()))
 				chamadas.writeToLog(result,logpath)
 				cont_erro += 1

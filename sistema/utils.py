@@ -1,6 +1,3 @@
-
-import subprocess
-import os, platform
 import time
 
 ## para configuracoes de zona de tempo, aqui esta sendo usado por default GMT-3
@@ -64,12 +61,6 @@ def Intervalo(inicio,fim):
 	dtini = inicio.split("-")
 	dtfim = fim.split("-")
 
-def hasPing(host):
-
-	ping_str = "ping -c 1 > /dev/null"
-	resposta = os.system(ping_str + " " + host)
-	return resposta == 0
-
 def tratarNome(nome):
 	
 	caracteres_especiais = [" ","*","$"]
@@ -85,10 +76,6 @@ def tratarNome(nome):
 		if not has_special:
 			tratado += caracter
 	return tratado
-
-def addHostKey(host):
-	hkstring = ("Host %s\n  HostKeyAlgorithms=+ssh-dss\n  KexAlgorithms diffie-hellman-group1-sha1\n"%(host.ip))
-	os.system("echo '%s' >> ~/.ssh/config" %hkstring)
 
 def scheduler():
 	print("\n\n    ATENCAO, ESTA FUNCIONALIDADE AINDA NAO FOI IMPEMENTADA,\n   FAVOR CONFIGURAR ROTINAS MANUALMENTE VIA CRONTAB\n   COM O SEGUINTE COMANDO: python3 backup_rotine.py")
