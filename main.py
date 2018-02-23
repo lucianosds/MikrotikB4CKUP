@@ -19,7 +19,7 @@ def main():
 		elif op =="1":
 			add()
 		elif op == "2":
-			listar()
+			chamadas.listar()
 		elif op == "3":
 			do_backup()
 		elif op == "4":
@@ -34,111 +34,13 @@ def add():
 		if op == "0":
 			break
 		elif op == "2":
-			loadCSV()
+			chamadas.loadCSV()
 			break
 		elif op == "1":
-			addHost()
+			chamadas.addHost()
 			break
 
-def loadCSV():
-	while True:
-		tgt = input("   insira o local do arquivo CSV. 0 para cancelar\n --> ")
-		if tgt == "0":
-			break
-		else:
-			if path.exists(tgt):
-				try:
-					banco.loadFromCSVFile(tgt)
-				except IndexError:
-					sys('echo "$(tput setaf 1)\n  ERRO DURANTE A ANALISE DO ARQUIVO: FORMATO INVALIDO \n$(tput sgr0)"')
-				break	
-			else:
-				sys('echo "$(tput setaf 1)\n  O ARQUIVO NAO EXISTE \n$(tput sgr0)"')
-
-def addHost():		
-	nome = ""
-	ip = ""
-	user = ""
-	senha = ""
-	protocolo = ""
-	porta = 0	
-
-	while True:
-		nome = input("\nnome do equipamento -> ")
-		if nome != "":
-			break
-		else:
-			sys('echo "$(tput setaf 1)\n  O NOME NAO PODE ESTAR EM BRANCO \n$(tput sgr0)"')
-	while True:
-		ip = input("IP do equipamento -> ")
-		if ip != "":
-			break
-		else:
-			sys('echo "$(tput setaf 1)\n  O IP NAO PODE ESTAR EM BRANCO \n$(tput sgr0)"')
 	
-	while True:
-		user = input("usuario do equipamento -> ")
-		if user != "":
-			break
-		else:
-			sys('echo "$(tput setaf 1)\n  O USUARIO NAO PODE ESTAR EM BRANCO \n$(tput sgr0)"')
-
-	while True:
-		senha = input("senha do equipamento -> ")
-		if senha != "":
-			break
-		else:
-			sys('echo "$(tput setaf 3)\n  DESEJA REALMENTE DEIXAR A SENHA EM BRANCO? \n$(tput sgr0)"')
-			op = input(" (Y/N) -> ")
-			if op.upper() == "Y":
-				break
-	while True:
-		
-		op = input("\nMetodo de backup:\n1 - FTP (via lftp)\n2 - SSH (via scp)\n --> ")
-
-		if op == "1":
-			protocolo = "FTP"
-			break
-		elif op == "2":
-			protocolo = "SSH"
-			break
-		else:
-			sys('echo "$(tput setaf 1)\n  OPCAO INVALIDA \n$(tput sgr0)"')
-
-	while True:
-		default_port_number = "21"
-		if protocolo == "SSH":
-			default_port_number = "22"
-
-		try:
-			porta = input("porta do equipamento (%s default) -> "%(default_port_number))
-			if porta != "":
-				porta = int(porta)
-			break
-		except:
-			sys('echo "$(tput setaf 1)\n  POR FAVOR, APENAS DIGITOS \n$(tput sgr0)"')
-
-
-
-	new_login = Modelos.Login(utils.tratarNome(nome), ip, user, senha, porta, "backup.rsc",protocolo)
-	
-	banco.insert(new_login)
-	
-	sys('echo "$(tput setaf 2)\n  EQUIPAMENTO ADICIONADO COM SUCESSO \n$(tput sgr0)"')
-	
-def listar():
-	print()
-
-	equipamentos = banco.getAll()
-	if len(equipamentos) == 0:
-		print("\n Vazio\n")
-	else:
-		contador = 1
-		for equipamento in equipamentos:
-			print ("%s - %s"%(contador, equipamento.toString()))
-			contador += 1
-	print()
-
 def do_backup(quiet=False):
 
 	data_atual = utils.getDataAtual()
